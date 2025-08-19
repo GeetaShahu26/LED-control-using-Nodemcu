@@ -1,0 +1,24 @@
+client.println("HTTP/1.1 200 OK");
+client.println("Content-Type: text/html");
+client.println(""); // Important empty line
+client.println("<!DOCTYPE HTML>");
+client.println("<html>");
+client.println("<head><meta name='viewport' content='width=device-width, initial-scale=1'>");
+client.println("<h1>NodeMCU Web LED Controller</h1>");
+client.println("<h3>LED Controls</h3>");
+client.println("<div>");
+    //LED 1 controls
+client.println("<p>LED 1</p>");
+client.println("<a href=\"/led1on\"><button class=\"button on\">ON</button></a>");
+client.println("<a href=\"/led1off\"><button class=\"button off\">OFF</button></a>");
+client.println("</div><br>");
+    
+    // LED 2 controls
+client.println("<div>");
+client.println("<p>LED 2</p>");
+client.println("<a href=\"/led2on\"><button class=\"button on\">ON</button></a>");
+client.println("<a href=\"/led2off\"><button class=\"button off\">OFF</button></a>");
+client.println("</div>");  
+client.println("</html>");
+client.println("</head>");
+
