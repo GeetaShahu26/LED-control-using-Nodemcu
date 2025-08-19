@@ -1,0 +1,93 @@
+#include <ESP8266WiFi.h>
+
+WiFiClient client;
+WiFiServer server(80);
+
+#define led D5
+#define led2 D6
+
+void setup() 
+{
+  Serial.begin(9600);
+  WiFi.begin("dlink-7853", "rbkkw32627");
+  
+  while(WiFi.status() != WL_CONNECTED)
+  {
+    delay(200);
+    Serial.print("..");
+  }
+  
+  Serial.println();
+  Serial.println("NodeMCU is connected!");
+  Serial.println(WiFi.localIP());
+  
+  server.begin();
+  pinMode(led, OUTPUT);
+  pinMode(led2, OUTPUT);
+  
+  // Initialize LEDs to OFF
+  digitalWrite(led, LOW);
+  digitalWrite(led2, LOW);
+}
+
+void loop() 
+{
+  client = server.available();
+  
+  if (client) 
+  {
+    Serial.println("New client connected");
+    String request = client.readStringUntil('\r');
+    Serial.println(request);
+    client.flush();
+    
+    // Handle the request
+    if (request.indexOf("GET /led1on") != -1) {
+      digitalWrite(led, HIGH);
+    } else if (request.indexOf("GET /led1off") != -1) {
+      digitalWrite(led, LOW);
+    } else if (request.indexOf("GET /led2on") != -1) {
+      digitalWrite(led2, HIGH);
+    } else if (request.indexOf("GET /led2off") != -1) {
+      digitalWrite(led2, LOW);
+    }
+    
+    // Send HTTP response
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+    client.println(""); // Important empty line
+    client.println("<!DOCTYPE HTML>");
+    client.println("<html>");
+    client.println("<head><meta name='viewport' content='width=device-width, initial-scale=1'>");
+    client.println("<style>");
+    client.println("body { font-family: Arial; text-align: center; margin: 0 auto; padding-top: 30px; }");
+    client.println(".button { padding: 10px 20px; font-size: 16px; margin: 5px; }");
+    client.println(".on { background-color: #4CAF50; color: white; }");
+    client.println(".off { background-color: #f44336; color: white; }");
+    client.println("</style></head>");
+    client.println("<body>");
+    client.println("<h1>NodeMCU Web LED Controller</h1>");
+    client.println("<h3>LED Controls</h3>");
+    
+    // LED 1 controls
+    client.println("<div>");
+    client.println("<p>LED 1</p>");
+    client.println("<a href=\"/led1on\"><button class=\"button on\">ON</button></a>");
+    client.println("<a href=\"/led1off\"><button class=\"button off\">OFF</button></a>");
+    client.println("</div><br>");
+    
+    // LED 2 controls
+    client.println("<div>");
+    client.println("<p>LED 2</p>");
+    client.println("<a href=\"/led2on\"><button class=\"button on\">ON</button></a>");
+    client.println("<a href=\"/led2off\"><button class=\"button off\">OFF</button></a>");
+    client.println("</div>");
+    
+    client.println("</body>");
+    client.println("</html>");
+    
+    delay(10); // Give the browser time to receive the data
+    client.stop();
+    Serial.println("Client disconnected");
+  }
+}
